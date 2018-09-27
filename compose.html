@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>canvas-合成</title>
+  <style>
+    * { padding: 0; margin: 0 }
+    button { padding: 5px 20px; margin: 10px 0; }
+    .composeBox {
+      position: relative;
+      width: 1023px;
+      height: 472px;
+    }
+  </style>
+</head>
+<body>
+  <!-- compose section -->
+  <h3>合成背景</h3>
+  <div id="composeBox" class="composeBox">
+    <img src="./composeBg.jpg">
+  </div>
+  <h3>角色素材</h3>
+  <div>
+    <img src="./compose1.png">
+    <img src="./compose2.png">
+  </div>
+  <!-- compose result -->
+  <button id="composeBtn">合成</button>
+  <h3>合成结果</h3>
+  <div id="composeResultBox">
+    <!-- result -->
+  </div>
+  <!-- javascript -->
+  <script>
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    const bg = document.createElement('img')
+    const character1 = document.createElement('img')
+    const character2 = document.createElement('img')
+    bg.src = './composeBg.jpg'
+    character1.src = './compose1.png'
+    character2.src = './compose2.png'
+    // 加载图片
+    const composeBtn = document.getElementById('composeBtn')
+    Promise.all([
+      loadImage(bg),
+      loadImage(character1),
+      loadImage(character2)
+    ]).then(() => {
+      composeBtn.addEventListener('click', draw)
+    })
+    /**
+     * 合成
+     */
+    function draw() {
+      // 设置画布大小
+      canvas.width = bg.width
+      canvas.height = bg.height
+      // 画背景
+      ctx.drawImage(bg, 0, 0)
+      // 画第一个角色
+      ctx.drawImage(
+        character1, 100, 200,
+        character1.width / 2,
+        character1.height / 2
+      )
+      // 画第二个角色
+      ctx.drawImage(
+        character2, 500, 200,
+        character2.width / 2,
+        character2.height / 2
+      )
+      // 将图片append到html中
+      const composeResultBox = document.getElementById('composeResultBox')
+      const resultImg = document.createElement('img')
+      resultImg.src = canvas.toDataURL('image/png', 0.92)
+      resultImg.addEventListener('load', () => {
+        composeResultBox.appendChild(resultImg)
+      })
+    }
+    /**
+     * 加载图片
+     */
+    function loadImage(elem) {
+      return new Promise((resolve, reject) => {
+        elem.addEventListener('load', () => {
+          resolve()
+        })
+      })
+    }
+  </script>
+</body>
+</html>

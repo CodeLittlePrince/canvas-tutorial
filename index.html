@@ -4,24 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>canvas</title>
+  <title>首页</title>
 </head>
 <body>
-  <!-- canvas -->
-  <canvas id="canvas" width="300" height="150"></canvas>
-  <!-- javascript -->
-  <script>
-    const canvas = document.getElementById('canvas')
-    const ctx = canvas.getContext('2d')
-    const img = document.createElement('img')
-    img.src = './pic.jpg'
-    img.addEventListener('load', () => {
-      // canvas.width = img.width
-      // canvas.height = img.height
-      canvas.style.width = img.width + 'px'
-      canvas.style.height = img.height + 'px'
-      ctx.drawImage(img, 0, 0)
-    })
-  </script>
+  <h2>canvas例子</h2>
+  <div>
+    <a href="./animate.html">动画</a>
+  </div>
+  <div>
+    <a href="./capture-base.html">截图-基础</a>
+  </div>
+  <div>
+    <a href="./capture-demo.html">截图-demo</a>
+  </div>
+  <div>
+    <a href="./compose.html">合成图</a>
+  </div>
+  <div>
+    <a href="./filter-base.html">滤镜-基础</a>
+  </div>
+  <div>
+    <a href="./filter-demo.html">滤镜-demo</a>
+  </div>
+  <div>
+    <a href="./cutout.html">抠图</a>
+  </div>
+  <div>
+    <a href="./reverse-pixel.html">通过像素翻转</a>
+  </div>
+  <div>
+    <a href="./particle.html">粒子</a>
+  </div>
 </body>
 </html>

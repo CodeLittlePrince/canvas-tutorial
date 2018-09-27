@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>canvas-截图</title>
+  <style>
+    * { padding: 0; margin: 0 }
+    button { padding: 5px 20px; margin: 10px 0; }
+    .captureBox {
+      position: relative;
+      width: 670px;
+      height: 377px;
+    }
+    .captureRect {
+      position: absolute;
+      top: 0;
+      left: 100px;
+      width: 200px;
+      height: 200px;
+      border: 2px dashed red;
+    }
+  </style>
+</head>
+<body>
+  <!-- capture section -->
+  <h3>截图区域</h3>
+  <div id="captureBox" class="captureBox">
+    <img src="./pic.jpg">
+    <div id="captureRect" class="captureRect"></div>
+  </div>
+  <!-- capture result -->
+  <button id="captureBtn">截图</button>
+  <h3>截图结果</h3>
+  <div id="captureResultBox">
+    <!-- result -->
+  </div>
+  <!-- javascript -->
+  <script>
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    const img = document.createElement('img')
+    img.src = './pic.jpg'
+    // 跨域图片必须加这句，只要crossOrigin的属性值不是use-credentials，全部都会解析为anonymous，包括空字符串，包括类似'abc'这样的字符
+    // img.crossOrigin = ''
+    const captureBtn = document.getElementById('captureBtn')
+    img.addEventListener('load', () => {
+      captureBtn.addEventListener('click', draw)
+    })
+    /**
+     * 截图
+     */
+    function draw() {
+      const captureResultBox = document.getElementById('captureResultBox')
+      const captureRect = document.getElementById('captureRect')
+      const style = window.getComputedStyle(captureRect)
+      // 设置canvas画布大小
+      canvas.width = parseInt(style.width)
+      canvas.height = parseInt(style.height)
+      // 画图
+      const x = parseInt(style.left)
+      const y = parseInt(style.top)
+      const w = parseInt(img.width)
+      const h = parseInt(img.height)
+      ctx.drawImage(img, x, y, w, h, 0, 0, w, h)
+      // 将图片append到html中
+      const resultImg = document.createElement('img')
+      // toDataURL必须在http服务中
+      resultImg.src = canvas.toDataURL('image/png', 0.92)
+      resultImg.addEventListener('load', () => {
+        captureResultBox.appendChild(resultImg)
+      })
+    }
+  </script>
+</body>
+</html>

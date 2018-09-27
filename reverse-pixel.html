@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>canvas-旋转</title>
+  <style>
+    * { padding: 0;margin: 0; }
+    button { padding: 5px 20px; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <div>
+    <button id="btn1">水平翻转</button>
+    <button id="btn2">垂直翻转</button>
+  </div>
+  <!-- canvas -->
+  <canvas id="canvas"></canvas>
+  <!-- javascript -->
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    const img = document.createElement('img')
+    img.src = './fate.png'
+    img.addEventListener('load', () => {
+      canvas.width = img.width
+      canvas.height = img.height
+      ctx.drawImage(img, 0, 0)
+      btn1.addEventListener('click', () => {
+        rotate()
+      })
+      btn2.addEventListener('click', () => {
+        rotate('vertical')
+      })
+    })
+    
+    function rotate(angle) {
+      const w = canvas.width
+      const h = canvas.height
+      const originImageData = ctx.getImageData(0, 0, w, h)
+      const originImageDataValue = originImageData.data
+      // 垂直翻转
+      if (angle === 'vertical') {
+        // 按行扫描
+        for (let y = 1; y <= h / 2; y++) {
+          // 按列扫描
+          for (let x = 1; x <= w ; x++) {
+            const previousIndex = ((y - 1) * w + (x - 1)) * 4
+            const finalIndex = (h - y) * w * 4 + x * 4
+            for (let i = 0; i < 4; i++) {
+              const t = originImageDataValue[previousIndex + i]
+              originImageDataValue[previousIndex + i] = originImageDataValue[finalIndex + i]
+              originImageDataValue[finalIndex + i] = t
+            }
+          }
+        }
+      } else {
+      // 水平翻转
+        // 按行扫描
+        for (let y = 1; y <= h; y++) {
+          // 按列扫描
+          for (let x = 1; x <= w / 2 ; x++) {
+            const previousIndex = ((y - 1) * w + (x - 1)) * 4
+            const finalIndex = (y * w - x) * 4
+            for (let i = 0; i < 4; i++) {
+              const t = originImageDataValue[previousIndex + i]
+              originImageDataValue[previousIndex + i] = originImageDataValue[finalIndex + i]
+              originImageDataValue[finalIndex + i] = t
+            }
+          }
+        }
+      }
+      console.log(originImageDataValue)
+      ctx.putImageData(originImageData, 0, 0)
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>canvas-滤镜</title>
+</head>
+<body>
+  <!-- canvas -->
+  <canvas id="canvas"></canvas>
+  <!-- javascript -->
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    const img = document.createElement('img')
+    img.src = './filter.jpg'
+    img.addEventListener('load', () => {
+      canvas.width = img.width
+      canvas.height = img.height
+      ctx.drawImage(img, 0, 0)
+      console.log(ctx.getImageData(0, 0, canvas.width, canvas.height))
+    })
+  </script>
+</body>
+</html>

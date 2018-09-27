@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>canvas-动画</title>
+</head>
+<body>
+  <!-- canvas -->
+  <canvas id="canvas" width="600" height="600"></canvas>
+  <!-- javascript -->
+  <script>
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    ctx.fillStyle = 'purple'
+    const step = 1    // 每步的长度
+    let xPosition = 0 // x坐标
+    move()            // call move
+    function move() {
+      ctx.clearRect(0, 0, 600, 600)
+      ctx.fillRect(xPosition, 0, 300, 150)
+      xPosition += step
+      if (xPosition <= 300) {
+        requestAnimationFrame(() => {
+          move()
+        })
+      }
+    }
+  </script>
+</body>
+</html>

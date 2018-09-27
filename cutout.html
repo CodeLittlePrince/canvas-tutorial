@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>canvas-抠图</title>
+  <style>
+    * { padding: 0; margin: 0 }
+    button { padding: 5px 20px; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <!-- cutout section -->
+  <h3>抠图区域</h3>
+  <div id="cutoutBox">
+    <img id="cutout1" src="./cutout1.jpg">
+    <img id="cutout2" src="./cutout2.jpg">
+  </div>
+  <!-- cutout result -->
+  <button id="cutoutBtn">抠图</button>
+  <h3>抠图结果</h3>
+  <div id="cutoutResultBox">
+    <!-- result -->
+  </div>
+  <!-- javascript -->
+  <script>
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    Promise.all([
+      loadImage(cutout1),
+      loadImage(cutout2)
+    ]).then(() => {
+      cutoutBtn.addEventListener('click', draw)
+    })
+    /**
+     * 抠图
+     */
+    function draw() {
+      const cutoutResultBox = document.getElementById('cutoutResultBox')
+      canvas.width = cutout1.width
+      canvas.height = cutout1.height
+      // 画图
+      ctx.drawImage(cutout2, 0, 0)
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data
+      const blankImage = ctx.createImageData(canvas.width, canvas.height)
+      // 处理蒙版图
+      process(imageData, blankImage)
+      ctx.putImageData(blankImage, 0, 0)
+      ctx.globalCompositeOperation = 'source-in'
+      ctx.drawImage(cutout1, 0, 0)
+      // 将图片append到html中
+      const resultImg = document.createElement('img')
+      // toDataURL必须在http服务中
+      resultImg.src = canvas.toDataURL()
+      resultImg.addEventListener('load', () => {
+        cutoutResultBox.appendChild(resultImg)
+      })
+    }
+    /**
+     * 将蒙版图黑色背景设处理成透明
+     */
+    function process(imageData, blankImage) {
+      // 去除蒙版图图黑色背景
+      const blankImageData = blankImage.data
+      for (let i = 0, len = imageData.length; i < len; i += 4) {
+        // 因为蒙版图还不能是完全的非黑即白，所以，用127做分界
+        if (
+          imageData[i] <= 127 &&
+          imageData[i + 1] <= 127 &&
+          imageData[i + 2] <= 127 &&
+          imageData[i + 3] === 255
+        ) {
+          blankImageData[i + 3] = 0
+        } else {
+          blankImageData[i] = imageData[i]
+          blankImageData[i + 1] = imageData[i + 1]
+          blankImageData[i + 2] = imageData[i + 2]
+          blankImageData[i + 3] = imageData[i + 3]
+        }
+      }
+    }
+    /**
+     * 加载图片
+     */
+     function loadImage(elem) {
+      return new Promise((resolve, reject) => {
+        elem.addEventListener('load', () => {
+          resolve()
+        })
+      })
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>canvas-粒子</title>
+  <style>
+    * { padding: 0;margin: 0; }
+    button { padding: 5px 20px; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <div>
+    <button id="dance">摇起来</button>
+  </div>
+  <div id="canvasBox">
+    <!-- 展示图 -->
+    <img src="./particle.png">
+    <!-- 结果图 -->
+  </div>
+  <!-- javascript -->
+  <script>
+    const OFFSET = 10
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    const img = document.createElement('img')
+    img.src = './particle.png'
+    img.addEventListener('load', () => {
+      canvas.width = img.width
+      canvas.height = img.height
+      const colors = caculate()
+      dance.addEventListener('click', () => {
+        canvasBox.appendChild(canvas)
+        draw(canvas.width, canvas.height, colors, OFFSET)
+      })
+    })
+    function caculate() {
+      ctx.drawImage(img, 0, 0)
+      const originImageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      const originImageDataValue = originImageData.data
+      const w = canvas.width
+      const h = canvas.height
+      let colors = []
+      let index = 0
+      for (let y = 1; y <= h; y++) {
+        for (let x = 1; x <= w ; x++) {
+          const r = originImageDataValue[index]
+          const g = originImageDataValue[index + 1]
+          const b = originImageDataValue[index + 2]
+          const a = originImageDataValue[index + 3]
+          index += 4
+          colors.push({
+            x: x,
+            y: y,
+            color: `rgba(${r}, ${g}, ${b}, ${a})`
+          })
+        }
+      }
+      return colors
+    }
+    function draw(w, h, colors, offset) {
+      ctx.clearRect(0, 0, w, h)
+      for (let i = 0, len = colors.length; i < len; i++) {
+        ctx.fillStyle = colors[i].color
+        const randomX = (colors[i].x - 1) + getRandomArbitrary(-offset, offset)
+        const randomY = (colors[i].y - 1) + getRandomArbitrary(-offset, offset)
+        ctx.fillRect(randomX, randomY, 1, 1)
+      }
+      if (offset > 0) {
+        window.requestAnimationFrame(() => {
+          draw(w, h, colors, (offset - 0.1).toFixed(1))
+        })
+      }
+    }
+    function getRandomArbitrary(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+    function easeInOutExpo (t, b, c, d) {
+      if (t==0) return b;
+      if (t==d) return b+c;
+      if ((t/=d/2) < 1) return c/2 * Math.pow(2, 10 * (t - 1)) + b;
+      return c/2 * (-Math.pow(2, -10 * --t) + 2) + b;
+    }
+  </script>
+</body>
+</html>
