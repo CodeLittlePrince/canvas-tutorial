@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,shrink-to-fit=no">
+  <title>canvas学习</title>
+  <meta name="keywords" content="">
+  <meta name="description" content="">
+  <style type="text/css">
+    body{background-color: #0c1328;position: absolute;left: 0;top: 0;right: 0;bottom: 0;}
+  </style>
+</head>
+<body>
+  <canvas id="myCanvas"></canvas>
+
+  <script type="text/javascript">
+    let canvas = {}
+    let image = {}
+    let particles = []
+    // 获取canvas元素
+    canvas.obj = document.getElementById('myCanvas');
+
+    if(canvas.obj.getContext) {
+      // 获取渲染上下文
+      canvas.ctx = canvas.obj.getContext('2d')
+      // 设置画布大小为屏幕宽高
+      canvas.w = canvas.obj.width = document.body.clientWidth
+      canvas.h = canvas.obj.height = document.body.clientHeight
+      // 新建一个image对象
+      let img = new Image()
+      img.src = './particle.png'
+      // 图像加载完后
+      img.onload = function() {
+        // 把图像信息保存在image里面
+        image.obj = img
+        image.w = img.width
+        image.h = img.height
+        image.x = parseInt(canvas.w / 2 - image.w / 2)
+        image.y = parseInt(canvas.h / 2 - image.h / 2)
+        // 把图像绘制到画布居中位置
+        canvas.ctx.drawImage(image.obj, image.x, image.y, image.w, image.h)
+        image.imageData = canvas.ctx.getImageData(image.x, image.y, image.w, image.h)
+        // 计算出符合要求的像素
+        calculate()
+        // 计算后绘到画布上
+        requestAnimationFrame(draw)
+      }
+    }
+
+    // 计算并保存坐标
+    function calculate() {
+      // 只保存100行，100列的像素值（为了性能，也因为看上去更散）
+      let cols = 100
+      let rows = 100
+      // 设成100行，100列的每个像素间隔的宽高
+      let sWidth = parseInt(image.w / cols)  
+      let sHeight = parseInt(image.h / rows)
+      let pos = 0                      // 数组中的位置
+      let data = image.imageData.data  // 像素值数组
+      let now = new Date().getTime()   // 获取当前时间毫秒值
+      let particle = {}
+      for(let i = 0; i < cols; i++) {
+        for(let j = 0; j < rows; j++) {
+          // 计算(i,j)在数组中的R的坐标值
+          pos = (j * sHeight * image.w + i * sWidth) * 4;
+          // 判断像素透明度值是否符合要求
+          if(data[pos + 3] !== 0){
+            particle = {
+              // x,y值都随机一下
+              x: image.x + i * sWidth + (Math.random() - 0.5) * 20,
+              y: image.y + j * sHeight + (Math.random() - 0.5) * 20,
+              flotage: false
+            }
+            particle.fillStyle = `rgba(${data[pos]}, ${data[pos + 1]}, ${data[pos + 2]}, ${data[pos + 3]})`
+            // 间隔4个，让粒子运动（需要绘制的数量又减少1/4，动画更加顺畅卡顿）
+            if( i % 4 === 0 && j % 4 === 0) {
+              particle.flotage = true
+              // 保存开始坐标
+              particle.startX = particle.x
+              particle.startY = particle.y
+              // 动画执行时间和结束时间
+              particle.startTime = now + Math.random() * 20 * 1000
+              particle.killTime = now + Math.random() * 35 * 1000
+              // x,y方向的移动速度
+              particle.speedX = (Math.random() - 0.5) * 0.9
+              particle.speedY = (Math.random() - 0.5) * 0.9
+            }
+            // 符合要求的粒子保存到数组里
+            particles.push(particle)
+          }
+        }
+      }
+    }
+
+    // 绘图案
+    function draw() {
+      // 清空画布					
+      canvas.ctx.clearRect(0, 0, canvas.w, canvas.h)
+      let len = particles.length
+      let curr_particle = null
+      // 当前时间毫秒值
+      let time = new Date().getTime()
+      for(let i = 0; i < len; i++) {
+        curr_particle = particles[i]
+        // 开始漂浮
+        if(curr_particle.flotage && curr_particle.startTime < time) {
+          // 改变粒子位置
+          curr_particle.x += curr_particle.speedX
+          curr_particle.y += curr_particle.speedY
+        } 
+        // 结束时间到了
+        if(curr_particle.killTime < time) {
+          // 粒子位置复原
+          curr_particle.x = curr_particle.startX
+          curr_particle.y = curr_particle.startY
+          // 重新计算开始时间和结束时间
+          curr_particle.startTime = time + parseInt(Math.random() * 20) * 1000
+          curr_particle.killTime = time + parseInt(Math.random() * 35) * 1000
+        }
+        // 设置填充颜色
+        canvas.ctx.fillStyle = curr_particle.fillStyle
+        // 绘粒子到画布上
+        canvas.ctx.fillRect(curr_particle.x, curr_particle.y, 1, 1)
+      }
+
+      // 重复绘制
+      requestAnimationFrame(draw)
+    }
+  </script>
+</body>
+</html>

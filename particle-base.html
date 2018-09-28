@@ -8,16 +8,28 @@
   <style>
     * { padding: 0;margin: 0; }
     button { padding: 5px 20px; margin: 10px 0; }
+    .box { display: flex; }
+    .left { flex: 0 0 300; }
+    .right { flex: 1;}
   </style>
 </head>
 <body>
-  <div>
-    <button id="dance">摇起来</button>
-  </div>
-  <div id="canvasBox">
+  <button id="btn">粒子化</button>
+  <div class="box">
     <!-- 展示图 -->
-    <img src="./particle.png">
-    <!-- 结果图 -->
+    <div class="left">
+      <h3>展示图</h3>
+      <div style="margin-top: 10px;">
+        <img src="./particle.png">
+      </div>
+    </div>
+    <!-- 结果图 -->
+    <div class="right">
+      <h3>结果图</h3>
+      <div id="canvasBox">
+        <!-- 结果图 -->
+      </div>
+    </div>
   </div>
   <!-- javascript -->
   <script>
@@ -27,16 +39,19 @@
     const img = document.createElement('img')
     img.src = './particle.png'
     img.addEventListener('load', () => {
-      canvas.width = img.width
-      canvas.height = img.height
-      const colors = caculate()
-      dance.addEventListener('click', () => {
+      canvas.width = 400
+      canvas.height = 400
+      btn.addEventListener('click', () => {
+        const colors = caculate(img.width, img.height)
         canvasBox.appendChild(canvas)
-        draw(canvas.width, canvas.height, colors, OFFSET)
+        draw(img.width, img.height, colors)
       })
     })
-    function caculate() {
-      ctx.drawImage(img, 0, 0)
+    // 计算获取所有像素信息
+    function caculate(imgW, imgH) {
+      // 居中绘制
+      ctx.drawImage(img, (canvas.width - imgW) / 2, 10)
+      // 获取像素颜色信息
       const originImageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
       const originImageDataValue = originImageData.data
       const w = canvas.width
@@ -50,37 +65,27 @@
           const b = originImageDataValue[index + 2]
           const a = originImageDataValue[index + 3]
           index += 4
+          // 将像素位置打乱，保存进返回数据中
           colors.push({
-            x: x,
-            y: y,
+            x: x + getRandomArbitrary(-OFFSET, OFFSET),
+            y: y + getRandomArbitrary(-OFFSET, OFFSET),
             color: `rgba(${r}, ${g}, ${b}, ${a})`
           })
         }
       }
       return colors
     }
-    function draw(w, h, colors, offset) {
-      ctx.clearRect(0, 0, w, h)
+    // 绘制
+    function draw(w, h, colors) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
       for (let i = 0, len = colors.length; i < len; i++) {
         ctx.fillStyle = colors[i].color
-        const randomX = (colors[i].x - 1) + getRandomArbitrary(-offset, offset)
-        const randomY = (colors[i].y - 1) + getRandomArbitrary(-offset, offset)
-        ctx.fillRect(randomX, randomY, 1, 1)
-      }
-      if (offset > 0) {
-        window.requestAnimationFrame(() => {
-          draw(w, h, colors, (offset - 0.1).toFixed(1))
-        })
+        ctx.fillRect(colors[i].x - 1, colors[i].y - 1, 1, 1)
       }
     }
+    // 随机数
     function getRandomArbitrary(min, max) {
       return Math.random() * (max - min) + min;
-    }
-    function easeInOutExpo (t, b, c, d) {
-      if (t==0) return b;
-      if (t==d) return b+c;
-      if ((t/=d/2) < 1) return c/2 * Math.pow(2, 10 * (t - 1)) + b;
-      return c/2 * (-Math.pow(2, -10 * --t) + 2) + b;
     }
   </script>
 </body>
