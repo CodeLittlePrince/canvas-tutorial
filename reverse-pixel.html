@@ -47,7 +47,7 @@
           // 按列扫描
           for (let x = 1; x <= w ; x++) {
             const previousIndex = ((y - 1) * w + (x - 1)) * 4
-            const finalIndex = (h - y) * w * 4 + x * 4
+            const finalIndex = (h - (y - 1)) * w * 4 + (x - 1) * 4
             for (let i = 0; i < 4; i++) {
               const t = originImageDataValue[previousIndex + i]
               originImageDataValue[previousIndex + i] = originImageDataValue[finalIndex + i]
